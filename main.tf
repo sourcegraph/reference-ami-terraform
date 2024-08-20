@@ -225,6 +225,27 @@ resource "aws_vpc_security_group_ingress_rule" "http_from_alb" {
     to_port           = 80
 }
 
+resource "aws_vpc_security_group_ingress_rule" "ssh_from_private_subnet" {
+    security_group_id = aws_security_group.private.id
+    referenced_security_group_id = aws_security_group.private.id
+    from_port         = 22
+    ip_protocol       = "tcp"
+    to_port           = 22
+}
+
+resource "aws_vpc_security_group_egress_rule" "ssh_to_private_subnet" {
+    security_group_id = aws_security_group.private.id
+    referenced_security_group_id = aws_security_group.private.id
+    from_port         = 22
+    ip_protocol       = "tcp"
+    to_port           = 22
+}
+
+resource "aws_ec2_instance_connect_endpoint" "connect" {
+    subnet_id = aws_subnet.private.id
+    security_group_ids = [ aws_security_group.private.id ]
+}
+
 data "aws_ami" "sg" {
     most_recent = true
     owners = ["840044800169"]
@@ -243,21 +264,21 @@ resource "aws_instance" "sg" {
     vpc_security_group_ids  = [aws_security_group.private.id]
 }
 
-resource "aws_ebs_volume" "data" {
-    availability_zone = "${var.region}${var.private-az}"
-    size = 500
-}
+# resource "aws_ebs_volume" "data" {
+#     availability_zone = "${var.region}${var.private-az}"
+#     size = 500
+# }
 
 # import {
 #     to = aws_ebs_volume.data
 #     id = "vol-0f9fdeb8b8cceb8cd"
 # }
 
-resource "aws_volume_attachment" "data" {
-    device_name = "/dev/sdb"
-    volume_id   = aws_ebs_volume.data.id
-    instance_id = aws_instance.sg.id
-}
+# resource "aws_volume_attachment" "data" {
+#     device_name = "/dev/sdb"
+#     volume_id   = aws_ebs_volume.data.id
+#     instance_id = aws_instance.sg.id
+# }
 
 # import {
 #     to = aws_volume_attachment.data
