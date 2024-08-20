@@ -246,6 +246,8 @@ resource "aws_ec2_instance_connect_endpoint" "connect" {
     security_group_ids = [ aws_security_group.private.id ]
 }
 
+## Instance
+
 data "aws_ami" "sg" {
     most_recent = true
     owners = ["840044800169"]
