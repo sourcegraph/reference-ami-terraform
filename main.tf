@@ -1,6 +1,22 @@
+resource "terraform_data" "local_exec_tf_last_deployed" {
+    provisioner "local-exec" {
+        command = "bash update_tf_last_deployed.sh"
+    }
+    triggers_replace = {
+        time_rotating_daily_id = time_rotating.daily.rotation_rfc3339
+    }
+}
+
+resource "time_rotating" "daily" {
+    rotation_days = 1
+}
+
 ## Network
 resource "aws_vpc" "vpc" {
     cidr_block = var.vpc_cidr
+    depends_on = [
+        terraform_data.local_exec_tf_last_deployed
+    ]
 }
 
 resource "aws_internet_gateway" "igw" {
@@ -137,6 +153,9 @@ resource "aws_lb_target_group" "private" {
 resource "aws_lb_target_group_attachment" "name" {
     target_group_arn = aws_lb_target_group.private.arn
     target_id = aws_instance.sg.id
+    lifecycle {
+        create_before_destroy = true
+    }
 }
 
 resource "aws_alb_listener" "http" {
@@ -264,6 +283,25 @@ resource "aws_instance" "sg" {
     instance_type           = var.ec2_instance_type
     subnet_id               = aws_subnet.private.id
     vpc_security_group_ids  = [aws_security_group.private.id]
+
+    lifecycle {
+      create_before_destroy = true
+    }
+
+    depends_on = [
+        terraform_data.local_exec_tf_last_deployed
+    ]
+}
+
+resource "terraform_data" "initialize_admin" {
+    provisioner "local-exec" {
+        command = "bash initialize_site_admin.sh ${var.dns_host_name} ${var.dns_domain_name} ${var.sg_initial_admin_email} ${var.sg_initial_admin_username} ${var.sg_initial_admin_password} ${var.sg_initial_admin_timeout_seconds}"
+
+    }
+    triggers_replace = aws_instance.sg.id
+    depends_on = [
+        aws_instance.sg
+    ]
 }
 
 # resource "aws_ebs_volume" "data" {
@@ -287,12 +325,3 @@ resource "aws_instance" "sg" {
 #     id = "/dev/sdb:vol-0f9fdeb8b8cceb8cd:i-0122cbbc7984688bd"
 # }
 
-# resource "null_resource" "initialize_admin" {
-#     depends_on = [ aws_instance.sg ]
-#     lifecycle {
-#       replace_triggered_by = [ aws_instance.sg.id ]
-#     }
-#     provisioner "local-exec" {
-#         command = "curl -d '{\"email\": \"${var.sg_initial_admin_email}\", \"username\": \"${var.sg_initial_admin_username}\", \"password\": \"${var.sg_initial_admin_password}\"}' \"https://${var.dns_host_name}.${var.dns_domain_name}/-/site-init\" "
-#     }
-# }

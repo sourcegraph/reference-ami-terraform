@@ -1,6 +1,5 @@
 terraform {
     required_providers {
-
         aws = {
             source  = "hashicorp/aws"
             version = ">= 5.63"
@@ -15,6 +14,7 @@ provider "aws" {
         tags = {
             Name = var.name_tag
             Repo = var.repo_tag
+            tf_last_deployed = var.tf_last_deployed
         }
     }
 }

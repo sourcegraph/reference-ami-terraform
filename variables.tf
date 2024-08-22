@@ -1,5 +1,7 @@
+### Variables to maintain
+
 variable "sourcegraph_version" {
-    default = ""
+    default = "5.6.185"
     description = "Provide a specific Sourcegraph version if you'd like to pin versions instead of always getting latest. ex. v5.5.1337"
 }
 
@@ -11,35 +13,55 @@ variable "ec2_instance_type" {
     default = "m6a.2xlarge"
 }
 
-variable "admin_ssh_ip" {
-    sensitive = true
+### Required variables
+
+variable "route53_zone_id" {
+    description = "Zone ID of your Route53 DNS zone, to create a record"
+}
+
+variable "dns_domain_name" {
+    description = "The parent domain name your hostname will fall under"
+    default = "internal.example.com"
+}
+
+variable "dns_host_name" {
+    description = "The host portion of the FQDN"
+    default = "sourcegraph"
 }
 
 variable "sg_initial_admin_email" {
-    sensitive = true
+    description = "The email address of the initial Sourcegraph site admin account, recommended to be an email distribution group"
+    default = "sourcegraph-admin-team+sourcegraph-initial-site-admin@example.com"
+    #sensitive = true
 }
 
 variable "sg_initial_admin_username" {
-    sensitive = true
+    description = "The username of the initial Sourcegraph site admin account, recommended to not be 'admin'"
+    default = "sourcegraph-initial-site-admin"
+    #sensitive = true
 }
 
 variable "sg_initial_admin_password" {
-    sensitive = true
+    description = "The password of the initial Sourcegraph site admin account, recommended to not be 'admin', and do not store this as code"
+    #sensitive = true
 }
+
+### Optional variables
 
 variable "name_tag" {
     default = "ami"
 }
 
 variable "repo_tag" {
+    default = "https://github.com/sourcegraph/reference-ami-terraform"
 }
 
 variable "region" {
-    default = "us-west-2"
+    default = "us-east-2"
 }
 
 variable "private-az" {
-    default = "b"
+    default = "a"
 }
 
 variable "vpc_cidr" {
@@ -58,13 +80,12 @@ variable "public2_cidr" {
     default = "10.0.0.192/26"
 }
 
-variable "route53_zone_id" {
-    description = "Zone ID of your Route53 DNS zone, to create a record"
+variable "sg_initial_admin_timeout_seconds" {
+    default = "180"
 }
 
-variable "dns_domain_name" {
-}
+### Automated variables
 
-variable "dns_host_name" {
-    default = "ami"
+variable "tf_last_deployed" {
+    default = ""
 }
