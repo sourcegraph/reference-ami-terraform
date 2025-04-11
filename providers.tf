@@ -2,7 +2,7 @@ terraform {
     required_providers {
         aws = {
             source  = "hashicorp/aws"
-            version = ">= 5.63"
+            version = ">= 5.94.1"
         }
     }
 }
@@ -10,6 +10,7 @@ terraform {
 # Configure the AWS Provider
 provider "aws" {
     region = var.region
+    profile = "tf"
     default_tags {
         tags = {
             Name = var.name_tag

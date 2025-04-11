@@ -118,11 +118,12 @@ resource "aws_vpc_security_group_ingress_rule" "alb_http" {
 }
 
 resource "aws_vpc_security_group_egress_rule" "http_to_private" {
-    security_group_id = aws_security_group.public.id
-    referenced_security_group_id = aws_security_group.private.id
-    from_port         = 80
-    ip_protocol       = "tcp"
-    to_port           = 80
+    description                     = "HTTP"
+    from_port                       = 80
+    ip_protocol                     = "tcp"
+    referenced_security_group_id    = aws_security_group.private.id
+    security_group_id               = aws_security_group.public.id
+    to_port                         = 80
 }
 
 resource "aws_vpc_security_group_egress_rule" "https_to_internet" {
@@ -273,7 +274,7 @@ data "aws_ami" "sg" {
 
     filter {
         name   = "name"
-        values = ["Sourcegraph-${var.sourcegraph_ami_tshirt_size}*${var.sourcegraph_version}*"]
+        values = ["Sourcegraph-${var.sg_ami_tshirt_size}*${var.sg_version}*"]
     }
 }
 

@@ -1,12 +1,17 @@
 ### Variables to maintain
 
-variable "sourcegraph_version" {
-    default = "5.6.185"
-    description = "Provide a specific Sourcegraph version if you'd like to pin versions instead of always getting latest. ex. v5.5.1337"
+variable "sg_version" {
+    default = ""
+    # default = "5.6.185"
+    description = "If you'd like to pin a Sourcegraph release version, otherwise leave blank to get latest stable release"
 }
 
-variable "sourcegraph_ami_tshirt_size" {
+variable "sg_ami_tshirt_size" {
     default = "XS"
+    description = "Used to look up the Sourcegraph AMI ID from the AWS Marketplace"
+    # TODO: Check if the new size-less AMI is published
+    # Doesn't appear to be yet:
+    # https://us-east-2.console.aws.amazon.com/ec2/home?region=us-east-2#Images:visibility=public-images;search=Sourcegraph-
 }
 
 variable "ec2_instance_type" {
